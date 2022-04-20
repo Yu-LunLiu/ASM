@@ -1,0 +1,99 @@
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/20/22 01:12:51
+AddSub2.asm						     Page 1 - 1
+
+
+				;GCD Program               (gcd.asm)
+
+				;CCIT class of 112 Computer Science Yu-lun,Liu
+
+				INCLUDE Irvine32.inc
+			      C ; Include file for Irvine32.lib             (Irvine32.inc)
+			      C 
+			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
+			      C 
+			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C INCLUDE VirtualKeys.inc
+			      C ; VirtualKeys.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C 
+			      C .NOLIST
+			      C .LIST
+			      C 
+
+ 00000000			.data
+ 00000000 45 6E 74 65 72	Prompt1  BYTE  "Enter first integer : ",0
+	   20 66 69 72 73
+	   74 20 69 6E 74
+	   65 67 65 72 20
+	   3A 20 00
+ 00000017 45 6E 74 65 72	Prompt2  BYTE  "Enter second integer : ",0
+	   20 73 65 63 6F
+	   6E 64 20 69 6E
+	   74 65 67 65 72
+	   20 3A 20 00
+ 0000002F 47 43 44 20 3A	Prompt3  BYTE  "GCD : ",0
+	   20 00
+ 00000036 00000000		integer1 DWORD ?
+ 0000003A 00000000		integer2 DWORD ?
+
+ 00000000			.code
+ 00000000			main PROC
+ 00000000  B8 00000000		    mov eax, 0
+ 00000005  BA 00000000 R	    mov edx, OFFSET Prompt1
+ 0000000A  E8 00000000 E	    call WriteString
+ 0000000F  E8 00000000 E	    call ReadInt
+ 00000014  A3 00000036 R	    mov integer1, eax
+
+ 00000019  BA 00000017 R	    mov edx, OFFSET Prompt2
+ 0000001E  E8 00000000 E	    call WriteString
+ 00000023  E8 00000000 E	    call ReadInt
+ 00000028  A3 0000003A R	    mov integer2, eax
+				    
+ 0000002D  E8 00000007		    call GCD
+
+				    exit
+ 00000032  6A 00	   *	    push   +000000000h
+ 00000034  E8 00000000 E   *	    call   ExitProcess
+ 00000039			main ENDP
+
+ 00000039			GCD PROC
+ 00000039  60			    pushad             
+				    
+ 0000003A			Ed_algor:
+ 0000003A  A1 00000036 R	    mov eax, integer1
+ 0000003F  8B 1D 0000003A R	    mov ebx, integer2
+ 00000045  99			    cdq                
+ 00000046  F7 FB		    idiv ebx
+ 00000048  A1 0000003A R	    mov eax,integer2          
+ 0000004D  89 15 00000036 R	    mov integer1,edx         
+ 00000053  83 FA 00		    cmp edx, 0        
+ 00000056  74 20		    je FIND_GCD
+
+ 00000058  A1 0000003A R	    mov eax, integer2
+ 0000005D  8B 1D 00000036 R	    mov ebx, integer1
+ 00000063  99			    cdq                
+ 00000064  F7 FB		    idiv ebx
+ 00000066  A1 00000036 R	    mov eax,integer1       
+ 0000006B  89 15 0000003A R	    mov integer2,edx           
+ 00000071  83 FA 00		    cmp edx, 0          
+ 00000074  74 02		    je FIND_GCD
+				    
+ 00000076  EB C2		    JMP Ed_algor
+
+ 00000078			FIND_GCD:
+ 00000078  BA 0000002F R	    mov edx, OFFSET Prompt3
+ 0000007D  E8 00000000 E	    call WriteString
+ 00000082  E8 00000000 E	    call WriteDec
+ 00000087  61			    popad          
+ 00000088  C3			    ret
+
+ 00000089			GCD ENDP
+
+				END main
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/20/22 01:12:51
+AddSub2.asm						     Symbols 2 - 1
