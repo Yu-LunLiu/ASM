@@ -1,0 +1,173 @@
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/19/22 18:00:29
+AddSub2.asm						     Page 1 - 1
+
+
+				;Encryption Program               (Encrypt.asm)
+				;Part ONE
+				;CCIT class of 112 Computer Science Yu-lun,Liu
+				;Thanks to my classmate YangYU
+				;I can finally done this work with his help :)
+				; This program demonstrates simple symmetric
+				; encryption using the XOR instruction.
+
+				INCLUDE Irvine32.inc
+			      C ; Include file for Irvine32.lib             (Irvine32.inc)
+			      C 
+			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
+			      C 
+			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C INCLUDE VirtualKeys.inc
+			      C ; VirtualKeys.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C 
+			      C .NOLIST
+			      C .LIST
+			      C 
+
+ = 00000080			BUFMAX = 128        ; maximum buffer size
+
+ 00000000			.data
+ 00000000 45 6E 74 65 72	sPrompt  BYTE  "Enter the plain text: ",0
+	   20 74 68 65 20
+	   70 6C 61 69 6E
+	   20 74 65 78 74
+	   3A 20 00
+ 00000017 45 6E 74 65 72	kPrompt  BYTE  "Enter the key: ",0
+	   20 74 68 65 20
+	   6B 65 79 3A 20
+	   00
+ 00000027 43 69 70 68 65	sEncrypt BYTE  "Cipher text:          ",0
+	   72 20 74 65 78
+	   74 3A 20 20 20
+	   20 20 20 20 20
+	   20 20 00
+ 0000003E 44 65 63 72 79	sDecrypt BYTE  "Decrypted:            ",0
+	   70 74 65 64 3A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 00
+ 00000055  00000081 [		buffer   BYTE   BUFMAX+1 DUP(0)
+	    00
+	   ]
+ 000000D6 00000000		bufSize  DWORD  ?
+ 000000DA  00000081 [		key      BYTE   BUFMAX+1 DUP(0)
+	    00
+	   ]
+ 0000015B 00000000		keySize  DWORD  ?
+ 0000015F 30 78 00		PREHEX   BYTE   "0x",0
+ 00000162 20 00			SPACE    BYTE   " ",0
+
+ 00000000			.code
+ 00000000			main PROC
+ 00000000  E8 0000001B		    call    InputTheString      ; input the plain text
+ 00000005  E8 0000003C		    call    InputTheKey         ; input the key
+ 0000000A  E8 00000092		    call    TranslateBuffer ; encrypt the buffer
+ 0000000F  BA 00000027 R	    mov edx,OFFSET sEncrypt ; display encrypted message
+ 00000014  E8 00000053		    call    DisplayMessage
+
+				    exit
+ 00000019  6A 00	   *	    push   +000000000h
+ 0000001B  E8 00000000 E   *	    call   ExitProcess
+ 00000020			main ENDP
+
+				;-----------------------------------------------------
+ 00000020			InputTheString PROC
+				;
+				; Prompts user for a plaintext string. Saves the string 
+				; and its length.
+				; Receives: nothing
+				; Returns: nothing
+				;-----------------------------------------------------
+ 00000020  60			    pushad
+ 00000021  BA 00000000 R	    mov edx,OFFSET sPrompt  ; display a prompt
+ 00000026  E8 00000000 E	    call    WriteString
+ 0000002B  B9 00000080		    mov ecx,BUFMAX      ; maximum character count
+ 00000030  BA 00000055 R	    mov edx,OFFSET buffer   ; point to the buffer
+ 00000035  E8 00000000 E	    call    ReadString          ; input the string
+ 0000003A  A3 000000D6 R	    mov bufSize,eax         ; save the length
+ 0000003F  E8 00000000 E	    call    Crlf
+ 00000044  61			    popad
+ 00000045  C3			    ret
+ 00000046			InputTheString ENDP
+
+				;-----------------------------------------------------
+ 00000046			InputTheKey PROC
+				;
+				; Prompts user for a plaintext string. Saves the string 
+				; and its length.
+				; Receives: nothing
+				; Returns: nothing
+				;-----------------------------------------------------
+ 00000046  60			    pushad
+ 00000047  BA 00000017 R	    mov edx,OFFSET kPrompt  ; display a prompt
+ 0000004C  E8 00000000 E	    call    WriteString
+ 00000051  B9 00000080		    mov ecx,BUFMAX      ; maximum character count
+ 00000056  BA 000000DA R	    mov edx,OFFSET key   ; point to the buffer
+ 0000005B  E8 00000000 E	    call    ReadString          ; input the string
+ 00000060  A3 0000015B R	    mov keySize,eax         ; save the length
+ 00000065  E8 00000000 E	    call    Crlf
+ 0000006A  61			    popad
+ 0000006B  C3			    ret
+ 0000006C			InputTheKey ENDP
+
+				;-----------------------------------------------------
+ 0000006C			DisplayMessage PROC
+				;
+				; Displays the encrypted or decrypted message.
+				; Receives: EDX points to the message
+				; Returns:  nothing
+				;-----------------------------------------------------
+ 0000006C  60			    pushad
+ 0000006D  8B 0D 000000D6 R	    mov ecx,bufSize
+ 00000073  BE 00000000		    mov esi,0
+ 00000078			L1:
+ 00000078  B8 00000000		    mov eax,0
+ 0000007D  8A 86 00000055 R	    mov al,buffer[esi]
+ 00000083  BA 0000015F R	    mov edx,OFFSET PREHEX
+ 00000088  E8 00000000 E	    call    WriteString
+ 0000008D  E8 00000000 E	    call    WriteHex
+ 00000092  BA 00000162 R	    mov edx,OFFSET SPACE   ; display the buffer
+ 00000097  E8 00000000 E	    call    WriteString
+ 0000009C  46			    inc esi
+ 0000009D  E2 D9		    loop    L1
+ 0000009F  61			    popad
+ 000000A0  C3			    ret
+ 000000A1			DisplayMessage ENDP
+
+				;-----------------------------------------------------
+ 000000A1			TranslateBuffer PROC
+				;
+				; Translates the string by exclusive-ORing each
+				; byte with the encryption key byte.
+				; Receives: nothing
+				; Returns: nothing
+				;-----------------------------------------------------
+ 000000A1  60			    pushad
+ 000000A2  8B 0D 000000D6 R	    mov ecx,bufSize     ; loop counter
+ 000000A8  BE 00000000		    mov esi,0           ; index 0 in buffer
+ 000000AD  8B 3D 0000015B R	    mov edi,keySize
+ 000000B3			Lplain:
+ 000000B3  3B 3D 0000015B R	    cmp edi,keySize
+ 000000B9  75 07		    jnz Lkey1
+ 000000BB  BF 00000000		    mov edi,0
+ 000000C0  EB 03		    jmp Lkey2
+ 000000C2			    Lkey1:
+ 000000C2  47			    inc edi
+ 000000C3  EB 00		    jmp Lkey2
+ 000000C5			    Lkey2:
+ 000000C5  8A 87 000000DA R	    mov al,key[edi]
+ 000000CB  30 86 00000055 R	    xor buffer[esi],al
+ 000000D1  46			    inc esi
+ 000000D2  E2 DF		    loop Lplain
+ 000000D4  61			    popad
+ 000000D5  C3			    ret
+ 000000D6			TranslateBuffer ENDP
+
+				END main
+Microsoft (R) Macro Assembler Version 14.30.30706.0	    04/19/22 18:00:29
+AddSub2.asm						     Symbols 2 - 1
